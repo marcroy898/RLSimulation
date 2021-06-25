@@ -1,4 +1,5 @@
 import pygame
+from car import Car
 
 #Intializes pygame
 pygame.init()
@@ -7,13 +8,8 @@ pygame.init()
 screen = pygame.display.set_mode((800,600))
 
 #Car intialization
-carImg = pygame.image.load('Assets/car.png')
-carImg = pygame.transform.scale(carImg, (50,25)) #Original image 960x480, scaled down in 2:1 ratio
-carX = 370
-carY = 500
+player_car = Car(280, 480, 'Assets/car.png', .05)
 
-def car():
-    screen.blit(carImg, (carX, carY))
 
 #Running Game Loop: Anything persistent must be in here
 running = True
@@ -24,5 +20,6 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-    car()
+    screen.blit(player_car.image, (player_car.x, player_car.y))
+    player_car.update_pos()
     pygame.display.update()
