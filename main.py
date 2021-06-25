@@ -8,7 +8,7 @@ pygame.init()
 screen = pygame.display.set_mode((800,600))
 
 #Car intialization
-player_car = Car(280, 480, 'Assets/car.png', .05)
+player_car = Car(280, 280, 'Assets/car.png', .05)
 
 
 #Running Game Loop: Anything persistent must be in here
@@ -20,6 +20,7 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-    screen.blit(player_car.image, (player_car.x, player_car.y))
+    screen.blit(player_car.image, player_car.rect)
+    pygame.draw.rect(player_car.image,(10,10,10), player_car.rect, 1)
     player_car.update_pos()
     pygame.display.update()
