@@ -49,6 +49,9 @@ class Car:
         if pressed[pygame.K_w]:
             self.acceleration = ACCELERATION_CONSTANT
 
+        if pressed[pygame.K_s]:
+            self.acceleration = -ACCELERATION_CONSTANT
+
         if abs(self.velocity) < MAX_SPEED:
             self.velocity += self.acceleration
         else:
@@ -61,7 +64,7 @@ class Car:
 
         if self.acceleration == 0 and self.velocity < 0:
             self.velocity += FRICTION
-            self.velocity = max(0, self.velocity)
+            self.velocity = min(0, self.velocity)
 
         dx = self.velocity * self.pointing_vector[0]
         dy = self.velocity * self.pointing_vector[1]
