@@ -1,8 +1,6 @@
-import time
 import pygame
 from math import *
 from config_var import *
-import numpy as np
 
 class Car:
 
@@ -10,21 +8,22 @@ class Car:
         self.position = [x, y]
         self.velocity = 0
         self.acceleration = 0
-        self.pointing_vector = [0, 0]
+        self.pointing_vector = [0, 0]  #Points in the direction the car is facing
 
         self.angle = 0
         self.rotate_factor = 0
         self.source_image = pygame.image.load(image).convert()
-        self.source_image = pygame.transform.scale(self.source_image, (50,25))
-        self.image = self.source_image
+        self.source_image.set_colorkey((0, 0, 0))  #Makes car background transparent
+        self.source_image = pygame.transform.scale(self.source_image, (50, 25))
+        self.image = self.source_image #Reference for rotation
         self.rect = self.image.get_rect().move(self.position)
 
     def rotate_sequence(self):
-        self.angle = self.rotate_factor % 360 #Prevent rotation overflow
+        self.angle = self.rotate_factor % 360  #Prevent rotation overflow
         self.image = pygame.transform.rotate(self.source_image, self.angle)
 
         #Keeps the car in place when rotating
-        x,y = self.rect.center
+        x, y = self.rect.center
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
 
@@ -70,4 +69,4 @@ class Car:
         dy = self.velocity * self.pointing_vector[1]
         self.position = [self.position[0] + dx, self.position[1] - dy] #Subtract from y since top corner is Y=0
 
-        print("Pos: " + str(self.position) + " Velocity: " + str(self.velocity) + " Acc: " + str(self.acceleration))
+        #print("Pos: " + str(self.position) + " Velocity: " + str(self.velocity) + " Acc: " + str(self.acceleration))
