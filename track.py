@@ -5,7 +5,7 @@ from config_var import *
 class Track:
     def __init__(self):
         self.track_image = pygame.image.load(CURRENT_TRACK)
-        self.track_border_points = self.create_track_points_list()
+        self.track_border_points = np.array(self.create_track_points_list())
 
     def create_track_points_list(self):
         list_points = []

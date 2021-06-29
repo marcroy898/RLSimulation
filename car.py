@@ -36,10 +36,10 @@ class Car:
 
         #Rotation
         if pressed[pygame.K_a]:
-            self.rotate_factor += .1
+            self.rotate_factor += 3
 
         if pressed[pygame.K_d]:
-            self.rotate_factor -= .1
+            self.rotate_factor -= 3
 
         if self.rotate_factor != 0:
             self.rotate_sequence()
