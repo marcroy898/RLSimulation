@@ -13,14 +13,14 @@ class Game:
 
     def check_collision(self):
         angled_corners = [
-            (self.player_car.rect.centerx + (25 * cos(radians(self.player_car.angle + 30))),  #Top-left corner
-             self.player_car.rect.centery - (25 * sin(radians(self.player_car.angle + 30)))),
-            (self.player_car.rect.centerx + (25 * cos(radians(self.player_car.angle - 30))),  # Top-right corner
-             self.player_car.rect.centery - (25 * sin(radians(self.player_car.angle - 30)))),
-            (self.player_car.rect.centerx - (25 * cos(radians(self.player_car.angle - 30))),  # Bottom-left corner
-             self.player_car.rect.centery + (25 * sin(radians(self.player_car.angle - 30)))),
-            (self.player_car.rect.centerx - (25 * cos(radians(self.player_car.angle + 30))),  # Bottom-right corner
-             self.player_car.rect.centery + (25 * sin(radians(self.player_car.angle + 30))))
+            (self.player_car.rect.centerx + (25 * cos(radians(self.player_car.heading + 30))),  #Top-left corner
+             self.player_car.rect.centery - (25 * sin(radians(self.player_car.heading + 30)))),
+            (self.player_car.rect.centerx + (25 * cos(radians(self.player_car.heading - 30))),  # Top-right corner
+             self.player_car.rect.centery - (25 * sin(radians(self.player_car.heading - 30)))),
+            (self.player_car.rect.centerx - (25 * cos(radians(self.player_car.heading - 30))),  # Bottom-left corner
+             self.player_car.rect.centery + (25 * sin(radians(self.player_car.heading - 30)))),
+            (self.player_car.rect.centerx - (25 * cos(radians(self.player_car.heading + 30))),  # Bottom-right corner
+             self.player_car.rect.centery + (25 * sin(radians(self.player_car.heading + 30))))
         ]
 
         pygame.draw.circle(self.screen, (12, 96, 232), angled_corners[0], radius=2, width=3)
