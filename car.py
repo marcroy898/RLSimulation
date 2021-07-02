@@ -13,6 +13,7 @@ class Car:
         self.source_image = pygame.transform.scale(self.source_image, (50, 25))
         self.image = self.source_image #Reference for rotation
         self.rect = self.image.get_rect().move([x, y])
+        self.car_mask = pygame.mask.from_surface(self.image)
 
     def rotate_sequence(self):
         self.heading = self.heading % 360  #Prevent rotation overflow

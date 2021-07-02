@@ -12,37 +12,8 @@ class Game:
         self.game_track = Track()
 
     def check_collision(self):
-        angled_corners = [
-            (self.player_car.rect.centerx + (25 * cos(radians(self.player_car.heading + 30))),  #Top-left corner
-             self.player_car.rect.centery - (25 * sin(radians(self.player_car.heading + 30)))),
-            (self.player_car.rect.centerx + (25 * cos(radians(self.player_car.heading - 30))),  # Top-right corner
-             self.player_car.rect.centery - (25 * sin(radians(self.player_car.heading - 30)))),
-            (self.player_car.rect.centerx - (25 * cos(radians(self.player_car.heading - 30))),  # Bottom-left corner
-             self.player_car.rect.centery + (25 * sin(radians(self.player_car.heading - 30)))),
-            (self.player_car.rect.centerx - (25 * cos(radians(self.player_car.heading + 30))),  # Bottom-right corner
-             self.player_car.rect.centery + (25 * sin(radians(self.player_car.heading + 30))))
-        ]
-
-        pygame.draw.circle(self.screen, (12, 96, 232), angled_corners[0], radius=2, width=3)
-        pygame.draw.circle(self.screen, (12, 96, 232), angled_corners[1], radius=2, width=3)
-        pygame.draw.circle(self.screen, (12, 96, 232), angled_corners[2], radius=2, width=3)
-        pygame.draw.circle(self.screen, (12, 96, 232), angled_corners[3], radius=2, width=3)
-
-        rounded_position = [(round(angled_corners[0][0]), round(angled_corners[0][1])),
-                            (round(angled_corners[1][0]), round(angled_corners[1][1])),
-                            (round(angled_corners[2][0]), round(angled_corners[2][1])),
-                            (round(angled_corners[3][0]), round(angled_corners[3][1])),
-                            ]  #Have to round since black pixel list also rounded
-
-        rounded_position = np.array(rounded_position)
-
-        nrows, ncols = self.game_track.track_border_points.shape
-        dtype = {'names': ['f{}'.format(i) for i in range(ncols)],
-                 'formats': ncols * [self.game_track.track_border_points.dtype]}
-        C = np.intersect1d(self.game_track.track_border_points.view(dtype), rounded_position.view(dtype))
-
-
-        if C.size > 0:
+        if self.game_track.track_mask.overlap(self.player_car.car_mask,
+                                              (round(self.player_car.state[0]), round(self.player_car.state[1]))):
             print("Collision")
 
 
