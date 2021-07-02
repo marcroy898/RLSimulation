@@ -8,7 +8,7 @@ import numpy as np
 class Game:
     def __init__(self):
         self.screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
-        self.player_car = Car(280, 280, 'Assets/car.png', .05)
+        self.player_car = Car(WINDOW_WIDTH/2, 505, 'Assets/car.png', .05)
         self.game_track = Track()
 
     def check_collision(self):

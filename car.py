@@ -13,7 +13,7 @@ class Car:
         self.angle = 0
         self.rotate_factor = 0
         self.source_image = pygame.image.load(image).convert()
-        self.source_image.set_colorkey((0, 0, 0))  #Makes car background transparent
+        # self.source_image.set_colorkey((0, 0, 0))  #Makes car background transparent
         self.source_image = pygame.transform.scale(self.source_image, (50, 25))
         self.image = self.source_image #Reference for rotation
         self.rect = self.image.get_rect().move(self.position)
