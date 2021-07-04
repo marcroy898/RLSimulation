@@ -24,7 +24,7 @@ class Car:
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
 
-    def car_ode(self, state, u1, u2):
+    def car_ode(self, state, u1, u2, dt):
         lf = 1
         lr = 1
         x = state[0]
@@ -32,9 +32,9 @@ class Car:
         v = state[2]
         angle = state[3]
         beta = math.atan(lr / (lf + lr) * math.tan(radians(u2)))
-        dx = v * math.cos(radians(angle) + beta)
-        dy = v * math.sin(radians(angle) + beta)
-        dheading = v / lr * math.sin(beta)
+        dx = v * math.cos(radians(angle) + beta) * dt
+        dy = v * math.sin(radians(angle) + beta) * dt
+        dheading = v / lr * math.sin(beta) * dt
 
         #Bound
         if abs(v) >= MAX_SPEED:
@@ -44,35 +44,35 @@ class Car:
 
         #Friction
         if u1 == 0 and v  > 0:
-            dv = -FRICTION
+            dv = -FRICTION * dt
 
         if u1 == 0 and v  < 0:
-            dv = FRICTION
+            dv = FRICTION * dt
 
         return [dx, dy, dv, dheading]
 
-    def update_pos(self):
+    def update_pos(self, dt):
         self.rect = self.image.get_rect(topleft=[self.state[0], self.state[1]])
         pressed = pygame.key.get_pressed()
 
         #Rotation
         self.steering = 0
         if pressed[pygame.K_a]:
-            self.steering = 30
+            self.steering = 25
 
         if pressed[pygame.K_d]:
-            self.steering = -30
+            self.steering = -25
 
         #Movement
         self.acceleration = 0
         if pressed[pygame.K_w]:
-            self.acceleration = ACCELERATION_CONSTANT
+            self.acceleration = ACCELERATION_CONSTANT * dt
 
         if pressed[pygame.K_s]:
-            self.acceleration = -ACCELERATION_CONSTANT
+            self.acceleration = -ACCELERATION_CONSTANT * dt
 
         #Car ode
-        [dx, dy, dv, dheading] = self.car_ode(self.state, self.acceleration, self.steering)
+        [dx, dy, dv, dheading] = self.car_ode(self.state, self.acceleration, self.steering, dt)
         self.state = [self.state[0] + dx, self.state[1] - dy, self.state[2] + dv, self.state[3] + dheading] #Subtract from y since top corner is Y=0
 
         #Rotate car image
