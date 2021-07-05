@@ -24,7 +24,7 @@ class Car:
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
 
-    def car_ode(self, state, u1, u2, dt):
+    def car_ode(self, state, u1, u2):
         lf = 1
         lr = 1
         x = state[0]
@@ -32,9 +32,9 @@ class Car:
         v = state[2]
         angle = state[3]
         beta = math.atan(lr / (lf + lr) * math.tan(radians(u2)))
-        dx = v * math.cos(radians(angle) + beta) * dt
-        dy = v * math.sin(radians(angle) + beta) * dt
-        dheading = v / lr * math.sin(beta) * dt
+        dx = v * math.cos(radians(angle) + beta)
+        dy = v * math.sin(radians(angle) + beta)
+        dheading = v / lr * math.sin(beta)
 
         #Bound
         if abs(v) >= MAX_SPEED:
@@ -44,10 +44,10 @@ class Car:
 
         #Friction
         if u1 == 0 and v  > 0:
-            dv = -FRICTION * dt
+            dv = -FRICTION
 
         if u1 == 0 and v  < 0:
-            dv = FRICTION * dt
+            dv = FRICTION
 
         return [dx, dy, dv, dheading]
 
@@ -66,16 +66,18 @@ class Car:
         #Movement
         self.acceleration = 0
         if pressed[pygame.K_w]:
-            self.acceleration = ACCELERATION_CONSTANT * dt
+            self.acceleration = ACCELERATION_CONSTANT
 
         if pressed[pygame.K_s]:
-            self.acceleration = -ACCELERATION_CONSTANT * dt
+            self.acceleration = -ACCELERATION_CONSTANT
 
         #Car ode
-        [dx, dy, dv, dheading] = self.car_ode(self.state, self.acceleration, self.steering, dt)
-        self.state = [self.state[0] + dx, self.state[1] - dy, self.state[2] + dv, self.state[3] + dheading] #Subtract from y since top corner is Y=0
+        [dx, dy, dv, dheading] = self.car_ode(self.state, self.acceleration, self.steering)
+        self.state = [self.state[0] + dx*dt, self.state[1] - dy*dt, self.state[2] + dv*dt, self.state[3] + dheading*dt] #Subtract from y since top corner is Y=0
 
         #Rotate car image
         self.heading = self.state[3]
         if self.steering != 0:
             self.rotate_sequence()
+
+        print(self.state)

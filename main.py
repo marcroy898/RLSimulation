@@ -4,6 +4,7 @@ from config_var import *
 from track import Track
 from math import *
 import numpy as np
+import time
 
 class Game:
     def __init__(self):
@@ -26,6 +27,7 @@ class Game:
                 if event.type == pygame.QUIT:
                     running = False
             #Timestep
+            t = time.time()
             dt = self.clock.tick(60)
             dt /= 1000 #Convert ms -> sec
             #Game rendering
@@ -39,3 +41,23 @@ class Game:
 
 pygame.init()
 Game().game_loop()
+
+#
+# # State
+# - collision
+# - distance to reference lane
+# - velocity
+# - orientation
+#
+# # Actions
+# - Turn 25 degrees clockwise
+# - Turn 25 degrees counter-clockwise
+# - do not turn
+# - acc
+# - -acc
+# - do not acc
+#
+# # Rewards
+# - -5 If the car collides with walls
+# - -0.1: If the car got farther away from the reference lane
+# - 0.1: If the car got closer to the reference lane
