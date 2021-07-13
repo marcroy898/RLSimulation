@@ -23,11 +23,11 @@ class Game:
     def game_loop(self):
         running = True
         while running:
+            t = time.time()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
             #Timestep
-            t = time.time()
             dt = self.clock.tick(60)
             dt /= 1000 #Convert ms -> sec
             #Game rendering
@@ -36,7 +36,7 @@ class Game:
             self.player_car.update_pos(dt)
             self.check_collision()
             pygame.display.update()
-
+            print(time.time()-t)
 
 
 pygame.init()
