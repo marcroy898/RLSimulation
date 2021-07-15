@@ -5,15 +5,30 @@ import math
 
 class Car:
 
-    def __init__(self, x, y, image, start_speed):
+    def __init__(self, x, y, image):
         self.state = [x, y, 0, 0] #x, y, vel, heading
 
         self.source_image = pygame.image.load(image).convert()
         self.source_image.set_colorkey((0, 0, 0))  #Makes car background transparent
         self.source_image = pygame.transform.scale(self.source_image, (50, 25))
         self.image = self.source_image #Reference for rotation
-        self.rect = self.image.get_rect().move([x, y])
+        self.rect = self.image.get_rect(center=(self.state[0], self.state[1]))
         self.car_mask = pygame.mask.from_surface(self.image)
+
+    def distance_to_ref_lane(self):
+        #https://math.stackexchange.com/questions/127613/closest-point-on-circle-edge-from-point-outside-inside-the-circle
+        #Not generalized at the moment, only works for circle shaped paths
+        circle_radius = 300
+        vec_x = self.state[0] - WINDOW_WIDTH/2
+        vec_y = self.state[1] - WINDOW_HEIGHT/2
+        normalize = math.sqrt((vec_x ** 2) + (vec_y ** 2))
+        circle_x = WINDOW_WIDTH/2 + circle_radius * (vec_x/normalize)
+        circle_y = WINDOW_HEIGHT/2 + circle_radius * (vec_y/normalize)
+
+        eucl_distance = math.sqrt(abs((self.state[0] - circle_x) ** 2 + (self.state[1] - circle_y) ** 2))
+
+        print(eucl_distance)
+        return circle_x, circle_y, eucl_distance
 
     def rotate_sequence(self):
         self.heading = self.heading % 360  #Prevent rotation overflow
@@ -52,7 +67,7 @@ class Car:
         return [dx, dy, dv, dheading]
 
     def update_pos(self, dt):
-        self.rect = self.image.get_rect(topleft=[self.state[0], self.state[1]])
+        self.rect = self.image.get_rect(center=[self.state[0], self.state[1]])
         pressed = pygame.key.get_pressed()
 
         #Rotation
@@ -80,4 +95,4 @@ class Car:
         if self.steering != 0:
             self.rotate_sequence()
 
-        print(self.state)
+        # print(self.state)

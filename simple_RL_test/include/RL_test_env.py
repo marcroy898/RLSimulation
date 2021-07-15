@@ -79,7 +79,7 @@ class CarEnv(Env):
                 dist2wp = np.sqrt((self.current_wp[0] - self.agent.state[0]) ** 2 + (self.current_wp[1] - self.agent.state[1]) ** 2)
 
             # Calculate reward
-            self.dist2course = np.sqrt((self.agent.state[0]-self.course_center[0])**2 + (self.agent.state[1]-self.course_center[1])**2) - self.course_radius
+            self.dist2course = abs(np.sqrt((self.agent.state[0]-self.course_center[0])**2 + (self.agent.state[1]-self.course_center[1])**2) - self.course_radius)
             self.state = np.append(np.array(self.agent.state)[2:], self.dist2course)
 
             # Condition1: If |dist2course| > 9, reward: -5000, done
@@ -89,17 +89,19 @@ class CarEnv(Env):
             # print('--------------')
 
             # if self.state[0] > 0 and self.dist2course >= 0 and self.dist2course < 5:
-            if self.state[0] > 0 and self.dist2course > 0 and self.dist2course < 5:
+            if self.state[0] > 0 and self.dist2course > 2:
                 # reward = np.exp(-(self.dist2course+np.abs(dist2wp)))
                 # reward = np.exp(-(np.abs(dist2wp)))
-                reward = -dist2wp
+                reward = -self.dist2course
+            elif self.state[0] == 10 and self.dist2course < 2:
+                reward = 150000
             else:
                 # done = 1
-                reward = -5000
+                reward = -1000
 
-            if np.abs(self.dist2course) > 10:
-                # done = 1
-                reward = -5000
+            # if np.abs(self.dist2course) > 10:
+            #     # done = 1
+            #     reward = -1000
 
             # print("count:", self.counter)
             # print("state:", np.array(self.agent.state)[:2])
@@ -152,10 +154,10 @@ class CarEnv(Env):
         v = self.np_random.uniform(low=-10, high=10)
         heading = self.np_random.uniform(low=0, high=360)
 
-        self.waypoints = np.array([[self.course_center[0], self.course_center[1] - self.course_radius],
-                                  [self.course_center[0] + self.course_radius, self.course_center[1]],
-                                 [self.course_center[0], self.course_center[1] + self.course_radius * 2],
-                                 [self.course_center[0] - self.course_radius, self.course_center[1]]])
+        self.waypoints = np.array([[self.course_center[0] + self.course_radius, self.course_center[1]],
+                                   # [self.course_center[0] - self.course_radius, self.course_center[1]],
+                                   # [self.course_center[0], self.course_center[1] + self.course_radius * 2],
+                                   ])
 
         self.init_state = [x, y, v, heading]
         self.agent = CarODE.Car(self.dt, self.init_state)
@@ -164,6 +166,6 @@ class CarEnv(Env):
         self.current_wp_idx = np.argmin([np.sqrt((wp[0]-self.agent.state[0])**2+ (wp[1] - self.agent.state[1])**2) for wp in self.waypoints])
         self.current_wp = self.waypoints[self.current_wp_idx]
 
-        self.state = np.append(np.array( [v, heading]), self.dist2course)
+        self.state = np.append(np.array([v, heading]), self.dist2course)
 
         return self.state
