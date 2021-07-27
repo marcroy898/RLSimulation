@@ -66,7 +66,7 @@ class CarEnv(Env):
             # Update state of the car
             self.agent.update_pos(acc, steering)
 
-            #Reward to be implemented
+            #Sign Calculation
             self.dist2course = np.sqrt((self.agent.state[0]-self.course_center[0])**2 + (self.agent.state[1]-self.course_center[1])**2) - circ_track_radius
 
             if self.dist2course >= 50:
