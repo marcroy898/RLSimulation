@@ -2,6 +2,7 @@ import pygame
 from math import *
 from pygame_RL_test.config_var import *
 import math
+import numpy as np
 
 class Car:
 
@@ -68,3 +69,12 @@ class Car:
         self.heading = self.state[3]
         if self.steering != 0:
             self.rotate_sequence()
+
+        self.state_history.append(self.state)
+
+
+    def get_pos(self):
+        x = np.array(self.state_history)[:, 0]
+        y = np.array(self.state_history)[:, 1]
+
+        return x, y

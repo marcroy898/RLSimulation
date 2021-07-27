@@ -20,11 +20,11 @@ class CarEnv(Env):
         # Action space and observation space for gym
         self.action_space = Discrete(9)
 
-        self.max_speed = 10
+        self.max_speed = MAX_SPEED
         self.min_heading = 0
         self.max_heading = 360
-        self.min_dist = -25
-        self.max_dist = 25
+        self.min_dist = -1500
+        self.max_dist = 1500
 
         self.low = np.array([-self.max_speed, self.min_heading, self.min_dist])
         self.high = np.array([self.max_speed, self.max_heading, self.max_dist])
@@ -40,11 +40,12 @@ class CarEnv(Env):
         return [seed]
 
     def step(self, action):
+        self.render()
         done = 0
 
         # Stop after n steps
         self.counter += 1
-        if self.counter == 1000:
+        if self.counter == 2000:
             self.counter = 0
             done = 1
             reward = 0
@@ -66,22 +67,33 @@ class CarEnv(Env):
             # Update state of the car
             self.agent.update_pos(acc, steering)
 
-            #Sign Calculation
-            self.dist2course = np.sqrt((self.agent.state[0]-self.course_center[0])**2 + (self.agent.state[1]-self.course_center[1])**2) - circ_track_radius
-
-            if self.dist2course >= 50:
+            self.dist2course = abs(np.sqrt((self.agent.state[0]-self.course_center[0])**2 + (self.agent.state[1]-self.course_center[1])**2) - circ_track_radius)
+            if self.dist2course >= 20:
                 # reward = np.exp(-(self.dist2course+np.abs(dist2wp)))
                 # reward = np.exp(-self.dist2course)
                 reward = -self.dist2course
-            elif 10 < self.dist2course < 50:
-                reward = 100 - self.dist2course
-            elif self.dist2course <= 10:
+            elif 5 < self.dist2course < 20:
                 reward = 500 - self.dist2course
+                if self.agent.state[2] > 20:
+                    reward += 50
+            elif self.dist2course <= 5:
+                reward = 1000 - self.dist2course
+                if self.agent.state[2] > 20:
+                    reward += 100
             else:
                 # done = 1
                 reward = -1000
 
+            if self.agent.state[2] == 0:
+                reward = -10000
+            # print("dist2course:", self.dist2course)
+            # print("reward: ", reward)
+            # print("state: ", self.state)
+            # print("agent state: ", self.agent.state)
+            # print("------------------")
             return self.state, reward, done, {}
+
+
 
     def action_list(self, action):
         if action == 0:
@@ -112,8 +124,6 @@ class CarEnv(Env):
             acc = -ACC_const / self.dt
             steering = Steering_const / self.dt
 
-        self.render()
-
         return acc, steering
 
     def init_render(self):
@@ -129,16 +139,19 @@ class CarEnv(Env):
 
 
     def reset(self):
-        x = self.np_random.uniform(low=100, high=WINDOW_WIDTH - 100)
-        y = self.np_random.uniform(low=100, high=WINDOW_HEIGHT - 100)
-        v = self.np_random.uniform(low=-10, high=10)
-        heading = self.np_random.uniform(low=0, high=360)
+        # x = self.np_random.uniform(low=300, high=900)
+        # y = np.sqrt(circ_track_radius**2 - x**2)
+        # v = self.np_random.uniform(low=-30, high=30)
+        # heading = self.np_random.uniform(low=0, high=360)
+
+        x = WINDOW_WIDTH / 2
+        y = WINDOW_HEIGHT / 2
+        v = 0
+        heading = 0
 
         self.init_state = [x, y, v, heading]
         self.agent = Car(self.dt, self.init_state)
         self.dist2course = np.sqrt((x - self.course_center[0]) ** 2 + (y - self.course_center[1]) ** 2) - circ_track_radius
 
-
         self.state = np.append(np.array([v, heading]), self.dist2course)
-
         return self.state

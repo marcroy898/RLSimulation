@@ -8,13 +8,14 @@ from rl.memory import SequentialMemory
 from pygame_RL_test.config_var import *
 from pygame_RL_test.car import Car
 from pygame_RL_test.car_gym import CarEnv
+import matplotlib.pyplot as plt
 
 class RL():
     def __init__(self):
         # --------- Course is a circle in this example ----------------
         self.course_radius = circ_track_radius
-        self.course_center = [WINDOW_WIDTH/2, WINDOW_HEIGHT/2]
-        self.dt = 0.1
+        self.course_center = WINDOW_WIDTH/2, WINDOW_HEIGHT/2
+        self.dt = .05
         self.init_state = [self.course_center[0], self.course_center[1], 0, 0] # x, y, vel, heading
 
         self.env = CarEnv(self.dt, self.init_state)
@@ -34,9 +35,9 @@ class RL():
     # -------- Build Agent with Keras-RL -----------------------------
     def __build_agent(self):
         policy = BoltzmannQPolicy()
-        memory = SequentialMemory(limit=50000, window_length=1)
+        memory = SequentialMemory(limit=100000, window_length=1)
         self.dqn = DQNAgent(model=self.model, memory=memory, policy=policy,
-                      nb_actions=self.actions, nb_steps_warmup=1, target_model_update=1e-2)
+                      nb_actions=self.actions, nb_steps_warmup=10, target_model_update=1e-2)
         self.dqn.compile(Adam(lr=1e-3), metrics=['mae'])
 
     # -------- Train RL agent ---------------------------------
@@ -67,3 +68,13 @@ class RL():
             acc, steering = self.env.action_list(action)
 
             test_car_agent.update_pos(acc, steering)
+
+        x, y = test_car_agent.get_pos()
+
+        fig, ax = plt.subplots(figsize=(10, 10))
+        circle = plt.Circle(self.course_center, circ_track_radius, color='b', fill=False)
+        ax.set_aspect('equal')
+        ax.plot()  # Causes an autoscale update.
+        ax.add_patch(circle)
+        plt.plot(x, y, '-or')
+        plt.show()

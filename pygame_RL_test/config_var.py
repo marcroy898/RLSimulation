@@ -13,4 +13,4 @@ circ_track_radius = 300
 
 #Game Constants
 WINDOW_WIDTH = 1200
-WINDOW_HEIGHT = 700
+WINDOW_HEIGHT = 800
