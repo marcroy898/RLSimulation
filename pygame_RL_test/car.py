@@ -1,34 +1,23 @@
 import pygame
 from math import *
-from config_var import *
+from pygame_RL_test.config_var import *
 import math
 
 class Car:
 
-    def __init__(self, x, y, image):
-        self.state = [x, y, 0, 0] #x, y, vel, heading
+    def __init__(self, dt, init_state):
+        self.state = init_state #x, y, vel, heading
+        self.dt = dt
 
-        self.source_image = pygame.image.load(image).convert()
+        self.source_image = pygame.image.load(CAR_IMG).convert()
         self.source_image.set_colorkey((0, 0, 0))  #Makes car background transparent
         self.source_image = pygame.transform.scale(self.source_image, (50, 25))
         self.image = self.source_image #Reference for rotation
         self.rect = self.image.get_rect(center=(self.state[0], self.state[1]))
         self.car_mask = pygame.mask.from_surface(self.image)
 
-    def distance_to_ref_lane(self):
-        #https://math.stackexchange.com/questions/127613/closest-point-on-circle-edge-from-point-outside-inside-the-circle
-        #Not generalized at the moment, only works for circle shaped paths
-        circle_radius = 300
-        vec_x = self.state[0] - WINDOW_WIDTH/2
-        vec_y = self.state[1] - WINDOW_HEIGHT/2
-        normalize = math.sqrt((vec_x ** 2) + (vec_y ** 2))
-        circle_x = WINDOW_WIDTH/2 + circle_radius * (vec_x/normalize)
-        circle_y = WINDOW_HEIGHT/2 + circle_radius * (vec_y/normalize)
+        self.state_history = [self.state]
 
-        eucl_distance = math.sqrt(abs((self.state[0] - circle_x) ** 2 + (self.state[1] - circle_y) ** 2))
-
-        print(eucl_distance)
-        return circle_x, circle_y, eucl_distance
 
     def rotate_sequence(self):
         self.heading = self.heading % 360  #Prevent rotation overflow
@@ -66,33 +55,16 @@ class Car:
 
         return [dx, dy, dv, dheading]
 
-    def update_pos(self, dt):
+    def update_pos(self, acc, steering):
         self.rect = self.image.get_rect(center=[self.state[0], self.state[1]])
-        pressed = pygame.key.get_pressed()
-
-        #Rotation
-        self.steering = 0
-        if pressed[pygame.K_a]:
-            self.steering = 25
-
-        if pressed[pygame.K_d]:
-            self.steering = -25
-
-        #Movement
-        self.acceleration = 0
-        if pressed[pygame.K_w]:
-            self.acceleration = ACCELERATION_CONSTANT
-
-        if pressed[pygame.K_s]:
-            self.acceleration = -ACCELERATION_CONSTANT
+        self.acceleration = acc
+        self.steering = steering
 
         #Car ode
         [dx, dy, dv, dheading] = self.car_ode(self.state, self.acceleration, self.steering)
-        self.state = [self.state[0] + dx*dt, self.state[1] - dy*dt, self.state[2] + dv*dt, self.state[3] + dheading*dt] #Subtract from y since top corner is Y=0
+        self.state = [self.state[0] + dx*self.dt, self.state[1] - dy*self.dt, self.state[2] + dv*self.dt, self.state[3] + dheading*self.dt] #Subtract from y since top corner is Y=0
 
         #Rotate car image
         self.heading = self.state[3]
         if self.steering != 0:
             self.rotate_sequence()
-
-        # print(self.state)

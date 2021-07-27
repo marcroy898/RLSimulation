@@ -79,22 +79,24 @@ class CarEnv(Env):
                 dist2wp = np.sqrt((self.current_wp[0] - self.agent.state[0]) ** 2 + (self.current_wp[1] - self.agent.state[1]) ** 2)
 
             # Calculate reward
-            self.dist2course = abs(np.sqrt((self.agent.state[0]-self.course_center[0])**2 + (self.agent.state[1]-self.course_center[1])**2) - self.course_radius)
+            self.dist2course = np.sqrt((self.agent.state[0]-self.course_center[0])**2 + (self.agent.state[1]-self.course_center[1])**2) - self.course_radius
             self.state = np.append(np.array(self.agent.state)[2:], self.dist2course)
 
             # Condition1: If |dist2course| > 9, reward: -5000, done
             # Condition2: If 0 < dist2course < 5, acc > 0, reward: 5, otherwise -5
-            # print(self.state)
+            # print("state:", np.array(self.state))
             # print(self.current_wp_idx, self.dist2course, dist2wp)
             # print('--------------')
 
             # if self.state[0] > 0 and self.dist2course >= 0 and self.dist2course < 5:
-            if self.state[0] > 0 and self.dist2course > 2:
+            if self.dist2course >= 50:
                 # reward = np.exp(-(self.dist2course+np.abs(dist2wp)))
-                # reward = np.exp(-(np.abs(dist2wp)))
-                reward = -self.dist2course
-            elif self.state[0] == 10 and self.dist2course < 2:
-                reward = 150000
+                # reward = np.exp(-self.dist2course)
+                reward = -dist2wp
+            elif 10 < self.dist2course < 50:
+                reward = 100 - dist2wp
+            elif self.dist2course <= 10:
+                reward = 500 - dist2wp
             else:
                 # done = 1
                 reward = -1000
@@ -104,11 +106,13 @@ class CarEnv(Env):
             #     reward = -1000
 
             # print("count:", self.counter)
-            # print("state:", np.array(self.agent.state)[:2])
-            # print("wp_idx:",self.current_wp_idx)
-            # print("wp:", self.current_wp)
+            # # print("wp_idx:",self.current_wp_idx)
+            # # print("wp:", self.current_wp)
             # print("dist2course:", self.dist2course)
             # print("dist2wp:", dist2wp)
+            # if dist2wp < 10:
+            #     print("Waypoint change")
+            # print("reward: ", reward)
             # print("------------------")
 
             # Return step information
@@ -155,8 +159,8 @@ class CarEnv(Env):
         heading = self.np_random.uniform(low=0, high=360)
 
         self.waypoints = np.array([[self.course_center[0] + self.course_radius, self.course_center[1]],
-                                   # [self.course_center[0] - self.course_radius, self.course_center[1]],
-                                   # [self.course_center[0], self.course_center[1] + self.course_radius * 2],
+                                   [self.course_center[0] - self.course_radius, self.course_center[1]],
+                                   [self.course_center[0], self.course_center[1] + self.course_radius * 2],
                                    ])
 
         self.init_state = [x, y, v, heading]
