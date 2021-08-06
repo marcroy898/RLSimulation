@@ -1,4 +1,5 @@
 import numpy as np
+from tensorflow import keras
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Flatten
 from tensorflow.keras.optimizers import Adam
@@ -15,8 +16,8 @@ class RL():
         # --------- Course is a circle in this example ----------------
         self.course_radius = circ_track_radius
         self.course_center = WINDOW_WIDTH/2, WINDOW_HEIGHT/2
-        self.dt = .05
-        self.init_state = [self.course_center[0], self.course_center[1], 0, 0] # x, y, vel, heading
+        self.dt = .01
+        self.init_state = [self.course_center[0], self.course_center[1] + 300, 0, 0] # x, y, vel, heading
 
         self.env = CarEnv(self.dt, self.init_state)
 
@@ -27,19 +28,19 @@ class RL():
     def __build_model(self):
         self.model = Sequential()
         self.model.add(Flatten(input_shape=(1,) + self.states))
-        self.model.add(Dense(50, activation='relu'))
-        self.model.add(Dense(50, activation='relu'))
-        self.model.add(Dense(50, activation='relu'))
+        self.model.add(Dense(64, activation='relu'))
+        self.model.add(Dense(64, activation='relu'))
+        self.model.add(Dense(16, activation='relu'))
         self.model.add(Dense(self.actions, activation='linear'))
+        self.model.compile(loss='mean_squared_error', optimizer=Adam(lr=1e-2, epsilon=1e-7))
 
     # -------- Build Agent with Keras-RL -----------------------------
     def __build_agent(self):
         policy = BoltzmannQPolicy()
-        memory = SequentialMemory(limit=100000, window_length=1)
+        memory = SequentialMemory(limit=10000, window_length=1)
         self.dqn = DQNAgent(model=self.model, memory=memory, policy=policy,
-                      nb_actions=self.actions, nb_steps_warmup=10, target_model_update=1e-2)
-        self.dqn.compile(Adam(lr=1e-3), metrics=['mae'])
-
+                      nb_actions=self.actions, nb_steps_warmup=10, target_model_update=100)
+        self.dqn.compile(optimizer=Adam(lr=1e-2, epsilon=1e-7))
     # -------- Train RL agent ---------------------------------
     def train(self):
         self.__build_model()
@@ -61,7 +62,7 @@ class RL():
 
         for step in range(n_simulation_steps):
             dist2course = np.sqrt((test_car_agent.state[0] - self.course_center[0]) ** 2 + (test_car_agent.state[1] - self.course_center[1]) ** 2) - self.course_radius
-            xtest = np.reshape(np.append(np.array(test_car_agent.state[2:]), dist2course), (1, 1, -1))
+            xtest = np.reshape(np.append(np.array(test_car_agent.state), dist2course), (1, 1, -1))
             action = self.dqn.model.predict(xtest, batch_size=1)
             action = np.argmax(action[0])
 

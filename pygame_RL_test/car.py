@@ -48,10 +48,10 @@ class Car:
             dv = u1
 
         #Friction
-        if u1 == 0 and v  > 0:
+        if u1 == 0 and v > 0:
             dv = -FRICTION
 
-        if u1 == 0 and v  < 0:
+        if u1 == 0 and v < 0:
             dv = FRICTION
 
         return [dx, dy, dv, dheading]
