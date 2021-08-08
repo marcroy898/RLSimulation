@@ -1,6 +1,6 @@
 #Car Constants
-FRICTION = 25
-MAX_SPEED = 30
+FRICTION = 50
+MAX_SPEED = 100
 ACC_const = 10
 Steering_const = 25
 
