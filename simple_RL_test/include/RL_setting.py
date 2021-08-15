@@ -29,11 +29,12 @@ class RL():
     # ------- Deep Learning Model with Keras ----------------
     def __build_model(self):
         self.model = Sequential()
-        # self.model.add(Flatten(input_shape=(1,) + self.states))
-        self.model.add(Dense(16, activation='relu', input_shape=self.states))
-        self.model.add(Dense(16, activation='relu'))
-        self.model.add(Dense(16, activation='relu'))
-        self.model.add(Dense(16, activation='relu'))
+        self.model.add(Flatten(input_shape=(1,) + self.states))
+
+        # self.model.add(Dense(16, activation='relu', input_shape=self.states))
+        self.model.add(Dense(50, activation='relu'))
+        self.model.add(Dense(50, activation='relu'))
+        self.model.add(Dense(50, activation='relu'))
         self.model.add(Dense(self.actions, activation='linear'))
 
     # -------- Build Agent with Keras-RL -----------------------------
@@ -48,7 +49,7 @@ class RL():
     def train(self):
         self.__build_model()
         self.__build_agent()
-        self.dqn.fit(self.env, nb_steps=10000, visualize=False, verbose=1)
+        self.dqn.fit(self.env, nb_steps=5000, visualize=False, verbose=1)
         self.dqn.save_weights('dqn_weights.h5f', overwrite=True)
         # scores = self.dqn.test(self.env, nb_episodes=10, visualize=False)
         # filename = "result.txt"
@@ -65,7 +66,8 @@ class RL():
 
         for step in range(n_simulation_steps):
             dist2course = np.sqrt((test_car_agent.state[0] - self.course_center[0]) ** 2 + (test_car_agent.state[1] - self.course_center[1]) ** 2) - self.course_radius
-            xtest = np.array([dist2course])
+            # xtest = np.array([dist2course])
+            xtest = np.reshape(np.append(np.array(test_car_agent.state[3]), dist2course), (1, 1, -1))
             action = self.dqn.model.predict(xtest, batch_size=1)
             action = np.argmax(action[0])
 
